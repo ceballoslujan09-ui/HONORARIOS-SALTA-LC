@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regulador de Honorarios — Ley 8035 Salta</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --cream: #ede7d9;
+    --gold: #b8860b;
+    --gold-light: #d4a017;
+    --red: #8b1a1a;
+    --border: #c8b89a;
+    --muted: #7a6e5f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 10% 20%, rgba(184,134,11,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 90% 80%, rgba(139,26,26,0.05) 0%, transparent 60%);
+  }
+
+  header {
+    border-bottom: 2px solid var(--gold);
+    padding: 28px 48px 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #ede7d9, var(--paper));
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .header-title span {
+    display: block;
+    font-size: 0.85rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .header-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .form-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    box-shadow: 4px 4px 0 var(--cream);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--red);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .span-2 { grid-column: span 2; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+
+  select, input[type="number"], input[type="text"] {
+    border: 1px solid var(--border);
+    background: var(--paper);
+    padding: 10px 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    border-radius: 1px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e5f' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  select:focus, input:focus { border-color: var(--gold); background: white; }
+
+  .btn-calc {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-calc:hover { background: var(--red); }
+
+  /* RESULTADO */
+  #resultado { display: none; }
+
+  .resultado-card {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+    padding: 40px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .resultado-card::before {
+    content: 'REGULACIÓN';
+    position: absolute;
+    top: 20px; right: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: rgba(245,240,232,0.2);
+  }
+
+  .resultado-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+
+  .resultado-monto {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .resultado-ius {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.55);
+    margin-bottom: 28px;
+  }
+
+  .resultado-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(245,240,232,0.15);
+    margin-bottom: 28px;
+  }
+
+  .resultado-item-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+    margin-bottom: 4px;
+  }
+
+  .resultado-item-val {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--paper);
+  }
+
+  /* RESOLUCION */
+  .resolucion-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 40px;
+    box-shadow: 4px 4px 0 var(--cream);
+  }
+
+  .resolucion-header {
+    text-align: center;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+
+  .resolucion-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+
+  .resolucion-header .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  #texto-resolucion {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.85;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .desglose-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.85rem;
+  }
+
+  .desglose-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .desglose-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--cream);
+    color: var(--ink);
+  }
+
+  .desglose-table tr:last-child td {
+    font-weight: 600;
+    border-bottom: 2px solid var(--ink);
+    color: var(--ink);
+  }
+
+  .btn-copy {
+    margin-top: 24px;
+    padding: 11px 28px;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    float: right;
+  }
+
+  .btn-copy:hover { background: var(--gold); color: white; }
+
+  .note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding: 10px 14px;
+    margin-top: 16px;
+  }
+
+  /* INCIDENCIAS */
+  .incidencia-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--cream);
+  }
+  .incidencia-row:last-of-type { border-bottom: none; }
+
+  .btn-add-inc {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 9px 18px;
+    background: transparent;
+    border: 1.5px dashed var(--gold);
+    color: var(--gold);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 1px;
+  }
+  .btn-add-inc:hover { background: rgba(184,134,11,0.08); }
+
+  .btn-remove-inc {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-remove-inc:hover { background: var(--red); color: white; border-color: var(--red); }
+
+  .inc-subtotal-preview {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    margin-top: 4px;
+  }
+
+  .resultado-inc-card {
+    background: #2a1f0e;
+    border-radius: 2px;
+    padding: 24px 40px;
+    margin-top: -8px;
+    margin-bottom: 28px;
+    border-top: 1px solid rgba(184,134,11,0.3);
+  }
+
+  .resultado-inc-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 6px;
+  }
+
+  .resultado-inc-total {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--paper);
+  }
+
+  .resultado-inc-detalle {
+    margin-top: 14px;
+    font-size: 0.82rem;
+    color: rgba(245,240,232,0.6);
+    line-height: 1.7;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  .total-general-card {
+    background: var(--red);
+    color: white;
+    border-radius: 2px;
+    padding: 22px 40px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .total-general-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 4px;
+  }
+
+  .total-general-monto {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+  }
+
+  @media (max-width: 640px) {
+    .incidencia-row { grid-template-columns: 1fr 1fr; }
+    .incidencia-row .field:nth-child(3) { grid-column: span 2; }
+  }
+
+  @media (max-width: 640px) {
+    header { flex-direction: column; gap: 12px; padding: 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 1; }
+    .resultado-grid { grid-template-columns: 1fr; }
+    .form-card, .resolucion-card, .resultado-card { padding: 24px 20px; }
+    .resultado-monto { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <span>Provincia de Salta</span>
+    Regulación de Honorarios
+  </div>
+  <div class="header-badge">
+    Ley N° 8035<br>
+    Promulgada 04/10/2017<br>
+    Aranceles y Honorarios<br>
+    de Abogados y Procuradores
+  </div>
+</header>
+
+<main>
+  <div class="form-card">
+    <div class="section-title">Datos del Expediente</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Número de Expediente</label>
+        <input type="text" id="nro-exp" placeholder="Ej: EXP 852838/24">
+      </div>
+      <div class="field">
+        <label>Carátula</label>
+        <input type="text" id="caratula" placeholder="Ej: GARCIA c/ LOPEZ por cobro de pesos">
+      </div>
+      <div class="field">
+        <label>Juzgado / Tribunal</label>
+        <input type="text" id="juzgado" placeholder="Ej: Juzgado Civil 2ª Nom.">
+      </div>
+      <div class="field">
+        <label>Abogado/a Regulado/a</label>
+        <input type="text" id="abogado" placeholder="Ej: Dr. Juan Pérez, T° I F° 100">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="section-title">Tipo de Proceso y Etapa</div>
+    <div class="grid-3">
+      <div class="field span-2">
+        <label>Tipo de Proceso</label>
+        <select id="tipo-proceso" onchange="actualizarEtapas()">
+          <option value="">— Seleccionar —</option>
+          <optgroup label="Procesos con base económica">
+            <option value="ordinario">Proceso Ordinario (Art. 10 — 20%)</option>
+            <option value="ejecutivo">Proceso Ejecutivo (Art. 10 — 20%)</option>
+            <option value="sumarísimo">Proceso Sumarísimo / Sumario (Art. 10)</option>
+          </optgroup>
+          <optgroup label="Procesos especiales">
+            <option value="sucesorio">Proceso Sucesorio (Art. 22 — 15%)</option>
+            <option value="prescripcion">Prescripción Adquisitiva (Art. 30 — 20%)</option>
+            <option value="desalojo">Desalojo (Art. 25)</option>
+            <option value="alimentos">Alimentos (Art. 24)</option>
+            <option value="laboral">Laboral (Art. 10 — 20%)</option>
+            <option value="cautelar">Medida Cautelar (Art. 26 — 35%/50%)</option>
+          </optgroup>
+          <optgroup label="Sin base económica">
+            <option value="familia_sin_base">Derecho de Familia s/base (Art. 29 — mín. 17 ius)</option>
+            <option value="civil_sin_base">Civil y Comercial s/base (Art. 3 — mín. 19 ius)</option>
+            <option value="habeas_amparo">Hábeas Corpus / Amparo (Art. 34 — mín. 23 ius)</option>
+            <option value="jurisdiccion_voluntaria">Jurisdicción Voluntaria s/base (mín. 15 ius)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Instancia</label>
+        <select id="instancia">
+          <option value="primera">1ª Instancia</option>
+          <option value="segunda">2ª Instancia (+40%)</option>
+          <option value="segunda_revocada">2ª Inst. revocada favor apelante (+50%)</option>
+        </select>
+      </div>
+      <div class="field span-2">
+        <label>Etapa Procesal Alcanzada</label>
+        <select id="etapa">
+          <option value="completo">Proceso completo (100%)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Rol del Profesional</label>
+        <select id="rol">
+          <option value="abogado">Abogado/a (100%)</option>
+          <option value="procurador">Procurador/a (40%)</option>
+          <option value="ambos">Abogado/a + Mandatario/a (140%)</option>
+          <option value="vencido">Letrado parte vencida (50%)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="section-title">Base Económica</div>
+    <div class="grid-3">
+      <div class="field span-2">
+        <label>Monto del Juicio / Base Regulatoria ($)</label>
+        <input type="number" id="monto" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>Valor del IUS vigente ($)</label>
+        <input type="number" id="valor-ius" placeholder="Consultar Colegio" min="0" step="1">
+      </div>
+    </div>
+    <div class="note">
+      💡 El valor del IUS = 1% del sueldo neto del Juez de 1ª Instancia con 8 años de antigüedad. Consultá el valor actualizado en el Colegio de Abogados y Procuradores de Salta.
+    </div>
+  </div>
+
+  <!-- SECCIÓN INCIDENCIAS -->
+  <div class="form-card" id="card-incidencias">
+    <div class="section-title">Incidencias y Recursos <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:1px;">OPCIONAL · Art. 31</span></div>
+
+    <div style="font-size:0.83rem;color:var(--muted);margin-bottom:18px;line-height:1.6;">
+      Agregá cada incidente, excepción o revocatoria sustanciada que generó costas. Se calcula el <strong>25%</strong> del honorario del proceso principal por cada una (Art. 31, Ley 8035). El mínimo por incidencia es de <strong>5 ius</strong>.
+    </div>
+
+    <div id="lista-incidencias"></div>
+
+    <button class="btn-add-inc" onclick="agregarIncidencia()">+ Agregar incidencia / recurso</button>
+  </div>
+
+  <button class="btn-calc" onclick="calcular()">CALCULAR REGULACIÓN</button>
+
+  <!-- RESULTADO -->
+  <div id="resultado">
+    <div class="resultado-card">
+      <div class="resultado-label">Honorarios Regulados</div>
+      <div class="resultado-monto" id="res-monto-pesos">$ —</div>
+      <div class="resultado-ius" id="res-ius">— ius</div>
+      <div class="resultado-grid">
+        <div>
+          <div class="resultado-item-label">Base regulatoria</div>
+          <div class="resultado-item-val" id="res-base">—</div>
+        </div>
+        <div>
+          <div class="resultado-item-label">% aplicado</div>
+          <div class="resultado-item-val" id="res-pct">—</div>
+        </div>
+        <div>
+          <div class="resultado-item-label">Norma aplicable</div>
+          <div class="resultado-item-val" id="res-norma">—</div>
+        </div>
+      </div>
+
+      <table class="desglose-table" id="tabla-desglose">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Factor</th>
+            <th style="text-align:right">Subtotal ($)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-desglose"></tbody>
+      </table>
+    </div>
+
+    <!-- INCIDENCIAS RESULTADO -->
+    <div id="resultado-incidencias" style="display:none">
+      <div class="resultado-inc-card">
+        <div class="resultado-inc-label">Honorarios por Incidencias / Recursos</div>
+        <div class="resultado-inc-total" id="res-inc-total">$ —</div>
+        <div class="resultado-inc-detalle" id="res-inc-detalle"></div>
+      </div>
+      <div class="total-general-card">
+        <div>
+          <div class="total-general-label">Total General Regulado</div>
+          <div class="total-general-monto" id="res-total-general">$ —</div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;opacity:0.7;text-align:right;line-height:1.8;" id="res-total-ius-gen"></div>
+      </div>
+    </div>
+
+    <!-- RESOLUCIÓN -->
+    <div class="resolucion-card">
+      <div class="resolucion-header">
+        <h2>Resolución de Regulación de Honorarios</h2>
+        <div class="subtitle">Generada automáticamente · Ley 8035 · Provincia de Salta</div>
+      </div>
+      <div id="texto-resolucion"></div>
+      <button class="btn-copy" onclick="copiarResolucion()">⧉ COPIAR TEXTO</button>
+      <div style="clear:both"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── INCIDENCIAS ──────────────────────────────────────────────────────────────
+let incCounter = 0;
+
+const tiposIncidencia = [
+  { val: 'incidente',     label: 'Incidente (Art. 31 — 25%)',          pct: 0.25 },
+  { val: 'excepcion',     label: 'Excepción sustanciada (Art. 31 — 25%)', pct: 0.25 },
+  { val: 'revocatoria',   label: 'Revocatoria sustanciada (Art. 31 — 25%)', pct: 0.25 },
+  { val: 'dilatoria',     label: 'Excepción dilatoria (Art. 31 — 10%)', pct: 0.10 },
+];
+
+function agregarIncidencia() {
+  const id = ++incCounter;
+  const container = document.getElementById('lista-incidencias');
+  const div = document.createElement('div');
+  div.className = 'incidencia-row';
+  div.id = `inc-row-${id}`;
+  div.innerHTML = `
+    <div class="field">
+      <label>Descripción</label>
+      <input type="text" id="inc-desc-${id}" placeholder="Ej: Excepción de prescripción">
+    </div>
+    <div class="field">
+      <label>Tipo</label>
+      <select id="inc-tipo-${id}">
+        ${tiposIncidencia.map(t => `<option value="${t.val}" data-pct="${t.pct}">${t.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>Rol en incidencia</label>
+      <select id="inc-rol-${id}">
+        <option value="1">Abogado/a (100%)</option>
+        <option value="0.4">Procurador/a (40%)</option>
+        <option value="1.4">Ab. + Mandatario/a (140%)</option>
+        <option value="0.5">Parte vencida (50%)</option>
+      </select>
+    </div>
+    <button class="btn-remove-inc" onclick="eliminarIncidencia(${id})" title="Eliminar">×</button>
+  `;
+  container.appendChild(div);
+}
+
+function eliminarIncidencia(id) {
+  document.getElementById(`inc-row-${id}`)?.remove();
+}
+
+function calcularIncidencias(honorarioPrincipal, valorIus) {
+  const rows = document.querySelectorAll('[id^="inc-row-"]');
+  if (rows.length === 0) return null;
+
+  let totalInc = 0;
+  let detalles = [];
+  const minIusInc = 5 * valorIus;
+
+  rows.forEach(row => {
+    const idNum = row.id.replace('inc-row-', '');
+    const desc = document.getElementById(`inc-desc-${idNum}`)?.value || 'Incidencia';
+    const tipoSel = document.getElementById(`inc-tipo-${idNum}`);
+    const pctInc = parseFloat(tipoSel?.selectedOptions[0]?.dataset.pct || 0.25);
+    const tipoLabel = tipoSel?.selectedOptions[0]?.text || '';
+    const rolFactor = parseFloat(document.getElementById(`inc-rol-${idNum}`)?.value || 1);
+
+    let monto = honorarioPrincipal * pctInc * rolFactor;
+    if (valorIus > 0 && monto < minIusInc) monto = minIusInc;
+
+    totalInc += monto;
+    detalles.push({ desc, tipoLabel, pctInc, rolFactor, monto });
+  });
+
+  return { total: totalInc, detalles };
+}
+
+// ── ETAPAS ───────────────────────────────────────────────────────────────────
+const etapasPorTipo = {
+  ordinario: [
+    { val: 'completo', label: 'Proceso completo (100%)', pct: 1.0 },
+    { val: 'etapa1', label: 'Etapa 1: Demanda y contestación (40%)', pct: 0.4 },
+    { val: 'etapa2', label: 'Etapa 2: Prueba (40%)', pct: 0.4 },
+    { val: 'etapa3', label: 'Etapa 3: Alegatos a sentencia (20%)', pct: 0.2 },
+  ],
+  ejecutivo: [
+    { val: 'completo', label: 'Proceso completo (100%)', pct: 1.0 },
+    { val: 'etapa1', label: 'Etapa 1: Inicio a sentencia de remate (50%)', pct: 0.5 },
+    { val: 'etapa2', label: 'Etapa 2: Cumplimiento sentencia (50%)', pct: 0.5 },
+  ],
+  sucesorio: [
+    { val: 'completo', label: 'Proceso completo (100%)', pct: 1.0 },
+    { val: 'etapa1', label: 'Etapa 1: Escrito inicial – apertura (40%)', pct: 0.4 },
+    { val: 'etapa2', label: 'Etapa 2: Hasta declaratoria herederos (30%)', pct: 0.3 },
+    { val: 'etapa3', label: 'Etapa 3: Trámites finales (30%)', pct: 0.3 },
+  ],
+  default: [
+    { val: 'completo', label: 'Proceso completo (100%)', pct: 1.0 },
+    { val: 'etapa1', label: 'Etapa 1 (50%)', pct: 0.5 },
+    { val: 'etapa2', label: 'Etapa 2 (50%)', pct: 0.5 },
+  ]
+};
+
+function actualizarEtapas() {
+  const tipo = document.getElementById('tipo-proceso').value;
+  const sel = document.getElementById('etapa');
+  const etapas = etapasPorTipo[tipo] || etapasPorTipo.default;
+  sel.innerHTML = etapas.map(e => `<option value="${e.val}" data-pct="${e.pct}">${e.label}</option>`).join('');
+}
+
+function fmt(n) {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(n);
+}
+
+function calcular() {
+  const tipo = document.getElementById('tipo-proceso').value;
+  const monto = parseFloat(document.getElementById('monto').value) || 0;
+  const valorIus = parseFloat(document.getElementById('valor-ius').value) || 0;
+  const instancia = document.getElementById('instancia').value;
+  const rol = document.getElementById('rol').value;
+  const etapaSel = document.getElementById('etapa');
+  const etapaPct = parseFloat(etapaSel.selectedOptions[0]?.dataset.pct || 1);
+  const etapaLabel = etapaSel.selectedOptions[0]?.text || 'Completo';
+
+  const nroExp = document.getElementById('nro-exp').value || 'N/D';
+  const caratula = document.getElementById('caratula').value || 'Sin carátula';
+  const juzgado = document.getElementById('juzgado').value || 'Sin especificar';
+  const abogado = document.getElementById('abogado').value || 'Sin especificar';
+
+  if (!tipo) { alert('Por favor seleccioná el tipo de proceso.'); return; }
+
+  // --- LÓGICA DE CÁLCULO ---
+  let pctBase = 0.20; // Art. 10
+  let normaBase = 'Art. 10 — 20%';
+  let base = monto;
+  let esSinBase = false;
+  let minIus = 5;
+  let labelBase = 'Monto del juicio';
+  let pctLabel = '20%';
+  let cautelarPct = 0.35;
+
+  const tiposSinBase = ['familia_sin_base','civil_sin_base','habeas_amparo','jurisdiccion_voluntaria'];
+  esSinBase = tiposSinBase.includes(tipo);
+
+  if (tipo === 'sucesorio') {
+    pctBase = 0.15; normaBase = 'Art. 22 — 15%'; minIus = 5; pctLabel = '15%';
+  } else if (tipo === 'cautelar') {
+    pctBase = 0.20 * 0.35; normaBase = 'Art. 26 — 35% del 20%'; pctLabel = '7% (35%×20%)';
+  } else if (tipo === 'familia_sin_base') {
+    esSinBase = true; minIus = 17; normaBase = 'Art. 3 y 29 — mín. 17 ius';
+  } else if (tipo === 'civil_sin_base') {
+    esSinBase = true; minIus = 19; normaBase = 'Art. 3 — mín. 19 ius';
+  } else if (tipo === 'habeas_amparo') {
+    esSinBase = true; minIus = 23; normaBase = 'Art. 34 — mín. 23 ius';
+  } else if (tipo === 'jurisdiccion_voluntaria') {
+    esSinBase = true; minIus = 15; normaBase = 'Art. 35 — mín. 15 ius';
+  }
+
+  let honorarioBase = 0;
+  let desglose = [];
+
+  if (esSinBase) {
+    if (valorIus > 0) {
+      honorarioBase = minIus * valorIus;
+      desglose.push({ concepto: `Mínimo legal (${minIus} ius)`, factor: `${minIus} × ${fmt(valorIus)}`, subtotal: honorarioBase });
+    } else {
+      honorarioBase = 0;
+    }
+  } else {
+    honorarioBase = base * pctBase;
+    desglose.push({ concepto: `Base regulatoria × porcentaje`, factor: `${fmt(base)} × ${pctLabel}`, subtotal: honorarioBase });
+  }
+
+  // Etapa
+  let honorarioEtapa = honorarioBase * etapaPct;
+  if (etapaPct < 1) {
+    desglose.push({ concepto: `Etapa: ${etapaLabel}`, factor: `× ${(etapaPct*100).toFixed(0)}%`, subtotal: honorarioEtapa });
+  }
+
+  // Instancia
+  let factorInstancia = 1;
+  let labelInstancia = '';
+  if (instancia === 'segunda') { factorInstancia = 0.40; labelInstancia = '2ª Instancia (40%)'; }
+  else if (instancia === 'segunda_revocada') { factorInstancia = 0.50; labelInstancia = '2ª Inst. revocada (50%)'; }
+
+  let honorarioInstancia = etapaPct < 1 ? honorarioEtapa * factorInstancia : honorarioBase * factorInstancia;
+  if (factorInstancia < 1) {
+    desglose.push({ concepto: labelInstancia, factor: `× ${(factorInstancia*100).toFixed(0)}%`, subtotal: honorarioInstancia });
+  }
+
+  let honorarioFinal = factorInstancia < 1 ? honorarioInstancia : (etapaPct < 1 ? honorarioEtapa : honorarioBase);
+
+  // Rol
+  let factorRol = 1;
+  let labelRol = '';
+  if (rol === 'procurador') { factorRol = 0.40; labelRol = 'Procurador/a (40%)'; }
+  else if (rol === 'ambos') { factorRol = 1.40; labelRol = 'Abogado/a + Mandatario/a (140%)'; }
+  else if (rol === 'vencido') { factorRol = 0.50; labelRol = 'Parte vencida (50%)'; }
+
+  if (factorRol !== 1) {
+    const previo = honorarioFinal;
+    honorarioFinal = previo * factorRol;
+    desglose.push({ concepto: labelRol, factor: `× ${(factorRol*100).toFixed(0)}%`, subtotal: honorarioFinal });
+  }
+
+  // Mínimo
+  let honorarioMinimo = minIus * valorIus;
+  if (!esSinBase && valorIus > 0 && honorarioFinal < honorarioMinimo && honorarioFinal < (5 * valorIus)) {
+    honorarioFinal = 5 * valorIus;
+    desglose.push({ concepto: 'Ajuste al mínimo legal (5 ius)', factor: `5 × ${fmt(valorIus)}`, subtotal: honorarioFinal });
+  }
+
+  // Mostrar desglose final
+  desglose.push({ concepto: '✦ HONORARIO REGULADO', factor: '—', subtotal: honorarioFinal });
+
+  // IUS equivalentes
+  const iusEquiv = valorIus > 0 ? (honorarioFinal / valorIus).toFixed(2) : '—';
+
+  // ── INCIDENCIAS ──────────────────────────────────────────────────────────
+  const resInc = calcularIncidencias(honorarioFinal, valorIus);
+  let totalGeneral = honorarioFinal;
+  let iusGeneral = iusEquiv;
+
+  if (resInc) {
+    totalGeneral = honorarioFinal + resInc.total;
+    iusGeneral = valorIus > 0 ? (totalGeneral / valorIus).toFixed(2) : '—';
+
+    document.getElementById('resultado-incidencias').style.display = 'block';
+    document.getElementById('res-inc-total').textContent = fmt(resInc.total);
+
+    const detalleHtml = resInc.detalles.map((d, i) =>
+      `${i+1}. ${d.desc} — ${(d.pctInc*100).toFixed(0)}% del principal = ${fmt(d.monto)}`
+    ).join('\n');
+    document.getElementById('res-inc-detalle').textContent = detalleHtml;
+    document.getElementById('res-total-general').textContent = fmt(totalGeneral);
+    document.getElementById('res-total-ius-gen').textContent =
+      `Proceso principal: ${iusEquiv} ius\nIncidencias: ${valorIus > 0 ? (resInc.total/valorIus).toFixed(2) : '—'} ius\nTotal: ${iusGeneral} ius`;
+  } else {
+    document.getElementById('resultado-incidencias').style.display = 'none';
+  }
+
+  // --- RENDERIZAR ---
+  document.getElementById('res-monto-pesos').textContent = fmt(honorarioFinal);
+  document.getElementById('res-ius').textContent = valorIus > 0 ? `${iusEquiv} ius (valor ius: ${fmt(valorIus)})` : 'Ingresá el valor del ius para ver equivalencia';
+  document.getElementById('res-base').textContent = esSinBase ? 'Sin base económica' : fmt(base);
+  document.getElementById('res-pct').textContent = esSinBase ? `Mín. ${minIus} ius` : pctLabel;
+  document.getElementById('res-norma').textContent = normaBase;
+
+  const tbody = document.getElementById('tbody-desglose');
+  tbody.innerHTML = desglose.map((d, i) => `
+    <tr style="${i === desglose.length-1 ? 'font-weight:700; background:#f5f0e8' : ''}">
+      <td>${d.concepto}</td>
+      <td style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:#7a6e5f">${d.factor}</td>
+      <td style="text-align:right; font-family:'IBM Plex Mono',monospace">${fmt(d.subtotal)}</td>
+    </tr>
+  `).join('');
+
+  // --- GENERAR RESOLUCIÓN ---
+  const hoy = new Date();
+  const fechaHoy = hoy.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const tiposLabel = {
+    ordinario: 'proceso ordinario', ejecutivo: 'proceso ejecutivo',
+    sucesorio: 'proceso sucesorio', prescripcion: 'acción de prescripción adquisitiva',
+    desalojo: 'proceso de desalojo', alimentos: 'proceso de alimentos',
+    laboral: 'proceso laboral', cautelar: 'medida cautelar',
+    familia_sin_base: 'proceso de familia', civil_sin_base: 'proceso civil y comercial',
+    habeas_amparo: 'proceso de amparo', sumarísimo: 'proceso sumarísimo',
+    jurisdiccion_voluntaria: 'proceso de jurisdicción voluntaria'
+  };
+
+  const rolLabel = {
+    abogado: 'abogado/a patrocinante',
+    procurador: 'procurador/a',
+    ambos: 'abogado/a y mandatario/a',
+    vencido: 'letrado/a de la parte vencida'
+  };
+
+  // Párrafo de incidencias para la resolución
+  let parrafoIncidencias = '';
+  let resuelveIncidencias = '';
+  if (resInc && resInc.detalles.length > 0) {
+    const listaInc = resInc.detalles.map((d, i) =>
+      `   ${i+1}. ${d.desc} (${(d.pctInc*100).toFixed(0)}% del honorario principal): ${fmt(d.monto)}`
+    ).join('\n');
+    parrafoIncidencias = `\nVII. Que asimismo, corresponde regular los honorarios por las siguientes incidencias y/o recursos sustanciados en autos, conforme el Art. 31 de la Ley N° 8035, que establece que en los incidentes y excepciones el honorario se regulará en el veinticinco por ciento (25%) de lo que correspondiere al proceso principal, con un mínimo de 5 ius:\n\n${listaInc}\n\n   Subtotal incidencias: ${fmt(resInc.total)}\n`;
+    resuelveIncidencias = `\nREGULAR ASIMISMO los honorarios por incidencias y recursos conforme Art. 31, Ley N° 8035, en la suma de ${fmt(resInc.total)}${valorIus > 0 ? ` (equivalente a ${(resInc.total/valorIus).toFixed(2)} ius)` : ''}, discriminados conforme el detalle del considerando VII.\n\nESTABLECER que el total general de honorarios regulados en autos asciende a la suma de ${fmt(totalGeneral)}${iusGeneral !== '—' ? ` (${iusGeneral} ius en total)` : ''}.`;
+  }
+
+  const resolucion = `Salta, ${fechaHoy}.-
+
+AUTOS Y VISTOS:
+El expediente caratulado "${caratula}", Expte. N° ${nroExp}, en trámite ante ${juzgado}; y
+
+CONSIDERANDO:
+
+I. Que corresponde proceder a la regulación de honorarios profesionales del/la ${rolLabel[rol] || 'profesional'}, ${abogado}, por su actuación en autos.
+
+II. Que el presente es un ${tiposLabel[tipo] || 'proceso judicial'}, ${etapaSel.selectedOptions[0]?.text || ''}.
+
+III. Que a los fines de la regulación, resulta aplicable la Ley N° 8035 de Aranceles y Honorarios de Abogados y Procuradores de la Provincia de Salta (promulgada el 04/10/2017).
+
+${!esSinBase ? `IV. Que conforme lo establece el Art. 10 de la Ley N° 8035, en los procesos judiciales con base económica, los honorarios del Abogado/a por su actuación en primera instancia, hasta el llamado de autos para sentencia inclusive, se determinan en el veinte por ciento (20%) del monto del juicio.
+
+Que la base económica del presente proceso asciende a ${fmt(base)}, determinada conforme las actuaciones obrantes en autos.` 
+: 
+`IV. Que conforme lo establece el Art. 3° de la Ley N° 8035, en los asuntos no susceptibles de apreciación pecuniaria, el honorario mínimo aplicable es de ${minIus} ius (${normaBase}).`}
+
+V. Que el valor del "ius" arancelario ${valorIus > 0 ? `es de ${fmt(valorIus)}, equivalente al uno por ciento (1%) del sueldo neto del Juez de Primera Instancia con ocho (8) años de antigüedad, conforme Art. 3° de la Ley N° 8035` : 'deberá acreditarse conforme lo establece el Art. 3° de la Ley N° 8035'}.
+
+VI. Que ponderando las pautas del Art. 10 de la citada norma, en especial la naturaleza y complejidad del asunto, la extensión y calidad de la labor profesional desplegada, y la etapa procesal alcanzada, corresponde fijar los honorarios del/la profesional actuante en la suma que se detalla en la parte resolutiva.
+${parrafoIncidencias}
+Por ello, el/la Señor/a Juez/a
+
+RESUELVE:
+
+REGULAR los honorarios profesionales del/la ${rolLabel[rol] || 'profesional'}, ${abogado}, por su actuación en autos como ${rolLabel[rol] || 'letrado/a actuante'}, en la suma de ${fmt(honorarioFinal)} (${iusEquiv !== '—' ? `equivalente a ${iusEquiv} ius` : 'conforme Ley N° 8035'}), con más los intereses previstos en el Art. 44 de la Ley N° 8035, en caso de mora en el pago.
+${resuelveIncidencias}
+Notifíquese, regístrese y oportunamente archívese.-`;
+
+  document.getElementById('texto-resolucion').textContent = resolucion;
+  document.getElementById('resultado').style.display = 'block';
+  document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copiarResolucion() {
+  const texto = document.getElementById('texto-resolucion').textContent;
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✓ COPIADO';
+    setTimeout(() => btn.textContent = '⧉ COPIAR TEXTO', 2000);
+  });
+}
+</script>
+</body>
+</html>
